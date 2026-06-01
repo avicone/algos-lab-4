@@ -3,6 +3,7 @@ class LinkShortener:
         self.url_map = {}
         self.click_count = {}
         self.counter = 1
+
     
     def add_link(self, long_url, custom_code=None):
         for code, url in self.url_map.items():
