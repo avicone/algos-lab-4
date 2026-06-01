@@ -79,7 +79,7 @@ def main():
         if choice == "1":
             url = input("\nВведите длинную ссылку: ").strip()
             if not url:
-                print("\n✗ Ошибка: ссылка не может быть пустой!")
+                print("\n Ошибка: ссылка не может быть пустой!")
                 continue
             
             print("\nХотите задать свой короткий код?")
@@ -91,19 +91,19 @@ def main():
             if code_choice == "1":
                 custom_code = input("\nВведите желаемый короткий код: ").strip()
                 if not custom_code:
-                    print("\n✗ Код не может быть пустым! Будет сгенерирован автоматически.")
+                    print("\n Код не может быть пустым! Будет сгенерирован автоматически.")
                     code, is_busy = shortener.add_link(url)
                 else:
                     code, is_busy = shortener.add_link(url, custom_code)
                     
                     if is_busy:
-                        print(f"\n✗ Код '{custom_code}' уже занят! Попробуйте другой.")
+                        print(f"\n Код '{custom_code}' уже занят! Попробуйте другой.")
                         continue
             else:
                 code, is_busy = shortener.add_link(url)
             
             if code:
-                print(f"\n✓ Ссылка сохранена!")
+                print(f"\n Ссылка сохранена!")
                 print(f"  Короткий код: {code}")
                 print(f"  Полная ссылка: {url}")
             else:
@@ -113,17 +113,17 @@ def main():
             code = input("\nВведите короткий код: ").strip()
             url = shortener.get_long_url(code)
             if url:
-                print(f"\n✓ Ссылка найдена!")
+                print(f"\n Ссылка найдена!")
                 print(f"  {code} -> {url}")
             else:
-                print(f"\n✗ Код '{code}' не найден!")
+                print(f"\n Код '{code}' не найден!")
         
         elif choice == "3":
             code = input("\nВведите короткий код для проверки: ").strip()
             if shortener.link_exists(code):
-                print(f"\n✓ Код '{code}' существует!")
+                print(f"\n Код '{code}' существует!")
             else:
-                print(f"\n✗ Код '{code}' не существует!")
+                print(f"\n Код '{code}' не существует!")
         
         elif choice == "4":
             shortener.get_all_links()
@@ -145,7 +145,7 @@ def main():
             break
         
         else:
-            print("\n✗ Неверный выбор! Попробуйте снова.")
+            print("\n Неверный выбор! Попробуйте снова.")
 
 
 if __name__ == "__main__":
