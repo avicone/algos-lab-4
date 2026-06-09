@@ -1,152 +1,93 @@
 class LinkShortener:
     def __init__(self):
-        self.url_map = {}
-        self.click_count = {}
-        self.counter = 1
-
+        self.links = {}
+        self.clicks = {}
     
-    def add_link(self, long_url, custom_code=None):
-        for code, url in self.url_map.items():
-            if url == long_url:
-                return code, False
+    def add(self, url, code=None):
+        for k, v in self.links.items():
+            if v == url:
+                return k
         
-        if custom_code is None or custom_code == "":
-            short_code = f"a{self.counter}"
-            self.counter += 1
-        else:
-            if custom_code in self.url_map:
-                return None, True
-            short_code = custom_code
+        if not code:
+            code = f"a{len(self.links) + 1}"
         
-        self.url_map[short_code] = long_url
-        self.click_count[short_code] = 0
-        return short_code, False
+        if code in self.links:
+            return None
+        
+        self.links[code] = url
+        self.clicks[code] = 0
+        return code
     
-    def get_long_url(self, short_code):
-        if short_code in self.url_map:
-            self.click_count[short_code] += 1
-            return self.url_map[short_code]
+    def get(self, code):
+        if code in self.links:
+            self.clicks[code] += 1
+            return self.links[code]
         return None
     
-    def link_exists(self, short_code):
-        return short_code in self.url_map
+    def exists(self, code):
+        return code in self.links
     
-    def get_all_links(self):
-        if not self.url_map:
-            print("Ссылок пока нет!")
+    def show_all(self):
+        if not self.links:
+            print("Пусто!")
             return
-        
-        print("\n" + "="*60)
-        print("ВСЕ СОКРАЩЁННЫЕ ССЫЛКИ:")
-        print("="*60)
-        for code, url in self.url_map.items():
-            print(f"  {code} -> {url} (переходов: {self.click_count[code]})")
-        print("="*60)
+        for code, url in self.links.items():
+            print(f"{code} -> {url} ({self.clicks[code]})")
     
-    def get_most_popular(self):
-        if not self.url_map:
+    def popular(self):
+        if not self.links:
             return None
-        
-        pairs = list(map(
-            lambda code: (self.click_count[code], code),
-            self.url_map.keys()
-        ))
-        
-        max_clicks, popular_code = max(pairs)
-        
-        if max_clicks == 0:
-            return None
-        return popular_code
+        best = max(map(lambda c: (self.clicks[c], c), self.links.keys()))
+        return best[1] if best[0] > 0 else None
 
 
 def main():
-    shortener = LinkShortener()
+    s = LinkShortener()
     
     while True:
-        print("\n" + "="*60)
-        print("СОКРАЩАТЕЛЬ ССЫЛОК - ГЛАВНОЕ МЕНЮ")
-        print("="*60)
-        print("1. Добавить новую ссылку")
-        print("2. Найти длинную ссылку по коду")
-        print("3. Проверить существование кода")
-        print("4. Показать все ссылки")
-        print("5. Показать самую популярную ссылку")
-        print("6. Выход")
-        print("="*60)
-        
-        choice = input("\nВыберите действие (1-6): ").strip()
+        print("\n1.Добавить 2.Найти 3.Проверить 4.Все 5.Популярная 6.Выход")
+        choice = input("> ").strip()
         
         if choice == "1":
-            url = input("\nВведите длинную ссылку: ").strip()
+            url = input("Ссылка: ").strip()
             if not url:
-                print("\n Ошибка: ссылка не может быть пустой!")
+                print("Ошибка!")
                 continue
             
-            print("\nХотите задать свой короткий код?")
-            print("1. Да, я хочу придумать свой код")
-            print("2. Нет, пусть сгенерируется автоматически")
-            
-            code_choice = input("\nВаш выбор (1 или 2): ").strip()
-            
-            if code_choice == "1":
-                custom_code = input("\nВведите желаемый короткий код: ").strip()
-                if not custom_code:
-                    print("\n Код не может быть пустым! Будет сгенерирован автоматически.")
-                    code, is_busy = shortener.add_link(url)
-                else:
-                    code, is_busy = shortener.add_link(url, custom_code)
-                    
-                    if is_busy:
-                        print(f"\n Код '{custom_code}' уже занят! Попробуйте другой.")
-                        continue
+            ans = input("Свой код? (да/нет): ").strip().lower()
+            if ans == "да":
+                code = input("Код: ").strip()
+                result = s.add(url, code)
+                if not result:
+                    print("Код занят!")
+                    continue
             else:
-                code, is_busy = shortener.add_link(url)
+                result = s.add(url)
             
-            if code:
-                print(f"\n Ссылка сохранена!")
-                print(f"  Короткий код: {code}")
-                print(f"  Полная ссылка: {url}")
-            else:
-                print("\n✗ Ошибка при сохранении!")
+            print(f"Готово! Код: {result}")
         
         elif choice == "2":
-            code = input("\nВведите короткий код: ").strip()
-            url = shortener.get_long_url(code)
-            if url:
-                print(f"\n Ссылка найдена!")
-                print(f"  {code} -> {url}")
-            else:
-                print(f"\n Код '{code}' не найден!")
+            code = input("Код: ").strip()
+            url = s.get(code)
+            print(f"{code} -> {url}" if url else "Не найдено!")
         
         elif choice == "3":
-            code = input("\nВведите короткий код для проверки: ").strip()
-            if shortener.link_exists(code):
-                print(f"\n Код '{code}' существует!")
-            else:
-                print(f"\n Код '{code}' не существует!")
+            code = input("Код: ").strip()
+            print("Да!" if s.exists(code) else "Нет!")
         
         elif choice == "4":
-            shortener.get_all_links()
+            s.show_all()
         
         elif choice == "5":
-            popular = shortener.get_most_popular()
-            if popular:
-                print("\n" + "="*60)
-                print("САМАЯ ПОПУЛЯРНАЯ ССЫЛКА:")
-                print(f"  Код: {popular}")
-                print(f"  Ссылка: {shortener.url_map[popular]}")
-                print(f"  Переходов: {shortener.click_count[popular]}")
-                print("="*60)
+            pop = s.popular()
+            if pop:
+                print(f"Популярная: {pop} -> {s.links[pop]} ({s.clicks[pop]})")
             else:
-                print("\nПока нет популярных ссылок (нет переходов)!")
+                print("Нет переходов!")
         
         elif choice == "6":
-            print("\nДо свидания!")
+            print("Пока!")
             break
-        
-        else:
-            print("\n Неверный выбор! Попробуйте снова.")
-
 
 if __name__ == "__main__":
     main()
